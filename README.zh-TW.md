@@ -30,6 +30,7 @@ paq flatpak
 - **零設定** — 自動偵測可用的套件管理器
 - **雙格式輸出** — 表格（預設）與 JSON（`--json`）
 - **可擴展** — 新增 Provider 不需修改核心程式碼
+- **自我更新** — `paq upgrade` 自動偵測安裝方式並升級
 
 ## 安裝
 
@@ -42,7 +43,7 @@ brew install cluion/tap/paq
 ### Go install
 
 ```bash
-go install github.com/cluion/paq@latest
+go install github.com/cluion/paq/cmd/paq@latest
 ```
 
 ### 從原始碼編譯
@@ -66,10 +67,21 @@ alias paq="/path/to/paq/bin/paq"
 
 ## 更新
 
+執行 `paq upgrade` 自動偵測安裝方式並升級：
+
+```bash
+paq upgrade          # 自動偵測並升級
+paq upgrade --check  # 僅檢查是否有新版本
+```
+
+支援所有安裝方式：Homebrew、go install、直接下載的二進位檔。
+
+或手動更新：
+
 **Go：**
 
 ```bash
-go install github.com/cluion/paq@latest
+go install github.com/cluion/paq/cmd/paq@latest
 ```
 
 **Homebrew：**
@@ -85,6 +97,28 @@ cd paq
 git pull
 make build
 sudo make install   # 使用 alias 的話，重新編譯即可立即生效
+```
+
+## 解除安裝
+
+**Homebrew：**
+
+```bash
+brew uninstall cluion/tap/paq
+```
+
+**Go install：**
+
+```bash
+rm $(go env GOPATH)/bin/paq
+```
+
+**從原始碼：**
+
+```bash
+sudo make uninstall
+# 或手動刪除：
+sudo rm /usr/local/bin/paq
 ```
 
 ## 發佈流程

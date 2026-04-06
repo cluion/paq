@@ -6,7 +6,7 @@ LDFLAGS := -X github.com/cluion/paq/internal/cli.version=$(VERSION) \
            -X github.com/cluion/paq/internal/cli.commit=$(COMMIT) \
            -X github.com/cluion/paq/internal/cli.date=$(DATE)
 
-.PHONY: build test lint clean install
+.PHONY: build test lint clean install uninstall
 
 build:
 	go build -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/paq/
@@ -22,3 +22,7 @@ clean:
 
 install: build
 	cp $(BINARY) /usr/local/bin/paq
+
+uninstall:
+	@rm -f /usr/local/bin/paq
+	@echo "paq has been uninstalled from /usr/local/bin/paq"

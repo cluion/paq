@@ -5,6 +5,22 @@
 格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)，
 本專案遵循 [語意化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [1.1.0] - 2026-04-07
+
+### 新增
+
+- `paq upgrade` 命令，自動偵測安裝方式並升級（Homebrew、go install、本地安裝、直接下載）
+- `paq upgrade --check` 旗標，僅檢查新版本不執行升級
+- 自我更新功能，從 GitHub Releases 下載 binary 直接替換（`minio/selfupdate`）
+- Makefile `uninstall` 目標
+- README 中英版新增解除安裝說明
+- `debug.ReadBuildInfo()` fallback 版本顯示機制
+
+### 變更
+
+- 修正 `go install` 路徑：`github.com/cluion/paq@latest` → `github.com/cluion/paq/cmd/paq@latest`
+- 版本顯示改用 `debug.ReadBuildInfo()` 作為 fallback，修正 `go install` 版本顯示問題
+
 ## [1.0.0] - 2026-04-06
 
 ### 新增

@@ -14,6 +14,7 @@ var reservedNames = map[string]bool{
 	"version":    true,
 	"help":       true,
 	"completion": true,
+	"upgrade":    true,
 }
 
 // RegisterProviderCommands creates a subcommand for each registered Provider.

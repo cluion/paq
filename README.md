@@ -30,6 +30,7 @@ paq flatpak
 - **Zero config** — auto-detects available package managers
 - **Two output formats** — table (default) and JSON (`--json`)
 - **Extensible** — add new providers without modifying core code
+- **Self-updating** — `paq upgrade` auto-detects install method and updates
 
 ## Install
 
@@ -42,7 +43,7 @@ brew install cluion/tap/paq
 ### Go install
 
 ```bash
-go install github.com/cluion/paq@latest
+go install github.com/cluion/paq/cmd/paq@latest
 ```
 
 ### From source
@@ -66,10 +67,21 @@ Download the latest release from [Releases](https://github.com/cluion/paq/releas
 
 ## Update
 
+Run `paq upgrade` to auto-detect your install method and upgrade:
+
+```bash
+paq upgrade          # auto-detect and upgrade
+paq upgrade --check  # check for new version only
+```
+
+Works for all install methods: Homebrew, go install, and direct binary downloads.
+
+Or manually:
+
 **Go:**
 
 ```bash
-go install github.com/cluion/paq@latest
+go install github.com/cluion/paq/cmd/paq@latest
 ```
 
 **Homebrew:**
@@ -85,6 +97,28 @@ cd paq
 git pull
 make build
 sudo make install   # if alias, just rebuild — it takes effect immediately
+```
+
+## Uninstall
+
+**Homebrew:**
+
+```bash
+brew uninstall cluion/tap/paq
+```
+
+**Go install:**
+
+```bash
+rm $(go env GOPATH)/bin/paq
+```
+
+**From source:**
+
+```bash
+sudo make uninstall
+# or manually:
+sudo rm /usr/local/bin/paq
 ```
 
 ## Releasing

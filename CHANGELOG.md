@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-07
+
+### Added
+
+- `paq upgrade` command with auto-detection of install method (Homebrew, go install, local binary, direct download)
+- `paq upgrade --check` flag to check for new version without upgrading
+- Self-update via direct binary download from GitHub Releases (`minio/selfupdate`)
+- `make uninstall` Makefile target
+- Uninstall instructions in README (English and Chinese)
+- `debug.ReadBuildInfo()` fallback for version display when ldflags are not set
+
+### Changed
+
+- `go install` path corrected from `github.com/cluion/paq@latest` to `github.com/cluion/paq/cmd/paq@latest`
+- Version display now uses `debug.ReadBuildInfo()` as fallback, fixing version info for `go install` builds
+
 ## [1.0.0] - 2026-04-06
 
 ### Added
