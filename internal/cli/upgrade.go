@@ -52,7 +52,7 @@ func defaultFetchLatestTag(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch latest release: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
@@ -86,7 +86,7 @@ func defaultApplyUpdate(ctx context.Context, tag string) error {
 	if err != nil {
 		return fmt.Errorf("failed to download release: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("download failed with status %d", resp.StatusCode)
@@ -134,7 +134,7 @@ func extractBinaryFromTarGz(r io.Reader) (io.ReadSeeker, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to decompress: %w", err)
 	}
-	defer gzr.Close()
+	defer func() { _ = gzr.Close() }()
 
 	tr := tar.NewReader(gzr)
 	for {
@@ -175,7 +175,7 @@ func extractBinaryFromZip(r io.Reader) (io.ReadSeeker, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to open file in zip: %w", err)
 			}
-			defer rc.Close()
+			defer func() { _ = rc.Close() }()
 
 			content, err := io.ReadAll(rc)
 			if err != nil {
@@ -235,8 +235,9 @@ func detectInstallMethod() string {
 		return "homebrew"
 	}
 
-	// Check /usr/local/bin.
-	if strings.HasPrefix(resolved, "/usr/local/bin/") {
+	// Check /usr/local/bin (Unix) or C:\usr\local\bin (Windows via MSYS2/Cygwin).
+	localBin := filepath.Clean("/usr/local/bin")
+	if strings.HasPrefix(resolved, localBin+string(filepath.Separator)) || resolved == filepath.Join(localBin, "paq") {
 		return "local"
 	}
 
@@ -258,7 +259,7 @@ func init() {
 
 func runUpgrade(cmd *cobra.Command, args []string) error {
 	v, _, _ := buildInfo()
-	fmt.Fprintf(cmd.OutOrStdout(), "Current version: %s\n", v)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Current version: %s\n", v)
 
 	if checkOnly {
 		return runCheck(cmd, v)
@@ -279,14 +280,14 @@ func runCheck(cmd *cobra.Command, currentVersion string) error {
 	w := cmd.OutOrStdout()
 
 	if current == "dev" {
-		fmt.Fprintf(w, "Latest release: %s (current: dev build)\n", tag)
+		_, _ = fmt.Fprintf(w, "Latest release: %s (current: dev build)\n", tag)
 		return nil
 	}
 
 	if current == latest {
-		fmt.Fprintf(w, "Already up to date (%s)\n", currentVersion)
+		_, _ = fmt.Fprintf(w, "Already up to date (%s)\n", currentVersion)
 	} else {
-		fmt.Fprintf(w, "New version available: %s → %s\n", currentVersion, tag)
+		_, _ = fmt.Fprintf(w, "New version available: %s → %s\n", currentVersion, tag)
 	}
 	return nil
 }
@@ -297,19 +298,19 @@ func runUpgradeExec(cmd *cobra.Command) error {
 
 	switch method {
 	case "gopath":
-		fmt.Fprintln(w, "Detected install method: go install")
-		fmt.Fprintln(w, "Running: go install github.com/cluion/paq/cmd/paq@latest")
+		_, _ = fmt.Fprintln(w, "Detected install method: go install")
+		_, _ = fmt.Fprintln(w, "Running: go install github.com/cluion/paq/cmd/paq@latest")
 		if err := runCommand("go", "install", "github.com/cluion/paq/cmd/paq@latest"); err != nil {
 			return fmt.Errorf("upgrade failed: %w", err)
 		}
-		fmt.Fprintln(w, "Upgrade complete!")
+		_, _ = fmt.Fprintln(w, "Upgrade complete!")
 	case "homebrew":
-		fmt.Fprintln(w, "Detected install method: Homebrew")
-		fmt.Fprintln(w, "Running: brew upgrade cluion/tap/paq")
+		_, _ = fmt.Fprintln(w, "Detected install method: Homebrew")
+		_, _ = fmt.Fprintln(w, "Running: brew upgrade cluion/tap/paq")
 		if err := runCommand("brew", "upgrade", "cluion/tap/paq"); err != nil {
 			return fmt.Errorf("upgrade failed: %w", err)
 		}
-		fmt.Fprintln(w, "Upgrade complete!")
+		_, _ = fmt.Fprintln(w, "Upgrade complete!")
 	default:
 		selfUpdate(w, method)
 		return nil
@@ -319,25 +320,25 @@ func runUpgradeExec(cmd *cobra.Command) error {
 
 func selfUpdate(w io.Writer, method string) {
 	if method == "local" {
-		fmt.Fprintln(w, "Detected install method: local binary")
+		_, _ = fmt.Fprintln(w, "Detected install method: local binary")
 	} else {
-		fmt.Fprintln(w, "Install method unknown, using direct binary update")
+		_, _ = fmt.Fprintln(w, "Install method unknown, using direct binary update")
 	}
-	fmt.Fprintln(w, "Downloading latest release...")
+	_, _ = fmt.Fprintln(w, "Downloading latest release...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	tag, err := fetchLatestTag(ctx)
 	if err != nil {
-		fmt.Fprintf(w, "Error: failed to fetch latest version: %v\n", err)
+		_, _ = fmt.Fprintf(w, "Error: failed to fetch latest version: %v\n", err)
 		return
 	}
 
 	if err := applyUpdate(ctx, tag); err != nil {
-		fmt.Fprintf(w, "Error: %v\n", err)
+		_, _ = fmt.Fprintf(w, "Error: %v\n", err)
 		return
 	}
 
-	fmt.Fprintf(w, "Successfully updated to %s!\n", tag)
+	_, _ = fmt.Fprintf(w, "Successfully updated to %s!\n", tag)
 }
