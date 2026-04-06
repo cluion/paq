@@ -1,0 +1,23 @@
+# OpenSpec & AI tooling
+openspec/
+.claude/
+.codex/
+
+# Build output
+bin/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go test artifacts
+*.out
+*.test
+coverage.html
