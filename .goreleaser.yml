@@ -25,5 +25,6 @@ brews:
   - repository:
       owner: cluion
       name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     homepage: https://github.com/cluion/paq
     description: Unified CLI for querying installed packages across package managers
