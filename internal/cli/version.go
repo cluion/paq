@@ -43,7 +43,7 @@ var versionCmd = &cobra.Command{
 	Short: "Show version info",
 	Run: func(cmd *cobra.Command, args []string) {
 		v, c, d := buildInfo()
-		fmt.Fprintf(cmd.OutOrStdout(), "paq %s (commit: %s, built: %s)\n", v, c, d)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "paq %s (commit: %s, built: %s)\n", v, c, d)
 	},
 }
 

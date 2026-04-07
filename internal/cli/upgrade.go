@@ -297,6 +297,24 @@ func runUpgradeExec(cmd *cobra.Command) error {
 	method := detectInstallMethod()
 	w := cmd.OutOrStdout()
 
+	// Check if already up to date (skip for dev builds).
+	currentV, _, _ := buildInfo()
+	current := strings.TrimPrefix(currentV, "v")
+	if current != "dev" {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		tag, err := fetchLatestTag(ctx)
+		if err == nil {
+			latest := strings.TrimPrefix(tag, "v")
+			if current == latest {
+				_, _ = fmt.Fprintf(w, "Already up to date (%s)\n", currentV)
+				return nil
+			}
+			_, _ = fmt.Fprintf(w, "New version available: %s → %s\n", currentV, tag)
+		}
+	}
+
 	switch method {
 	case "gopath":
 		_, _ = fmt.Fprintln(w, "Detected install method: go install")
@@ -348,15 +366,6 @@ func selfUpdate(w io.Writer, method string) {
 	tag, err := fetchLatestTag(ctx)
 	if err != nil {
 		_, _ = fmt.Fprintf(w, "Error: failed to fetch latest version: %v\n", err)
-		return
-	}
-
-	currentV, _, _ := buildInfo()
-	current := strings.TrimPrefix(currentV, "v")
-	latest := strings.TrimPrefix(tag, "v")
-
-	if current != "dev" && current == latest {
-		_, _ = fmt.Fprintf(w, "Already up to date (%s)\n", currentV)
 		return
 	}
 
