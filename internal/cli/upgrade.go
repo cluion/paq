@@ -27,6 +27,7 @@ var (
 	runCommand     = defaultRunCommand
 	fetchLatestTag = defaultFetchLatestTag
 	applyUpdate    = defaultApplyUpdate
+	checkWritable  = canWrite
 )
 
 // defaultRunCommand executes a system command, printing output to stdout/stderr.
@@ -324,7 +325,22 @@ func selfUpdate(w io.Writer, method string) {
 	} else {
 		_, _ = fmt.Fprintln(w, "Install method unknown, using direct binary update")
 	}
-	_, _ = fmt.Fprintln(w, "Downloading latest release...")
+
+	// Check write permission before attempting update.
+	exePath, err := getExecutable()
+	if err == nil {
+		if !checkWritable(exePath) {
+			_, _ = fmt.Fprintln(w, "Permission denied: cannot write to current binary.")
+			_, _ = fmt.Fprintf(w, "Run with elevated privileges:\n")
+			_, _ = fmt.Fprintf(w, "  sudo paq upgrade\n")
+			_, _ = fmt.Fprintln(w)
+			_, _ = fmt.Fprintln(w, "Or move the binary to a user-writable directory:")
+			_, _ = fmt.Fprintln(w, "  mkdir -p ~/.local/bin")
+			_, _ = fmt.Fprintf(w, "  sudo mv %s ~/.local/bin/paq\n", exePath)
+			_, _ = fmt.Fprintln(w, "  echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.zshrc")
+			return
+		}
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -335,10 +351,32 @@ func selfUpdate(w io.Writer, method string) {
 		return
 	}
 
+	currentV, _, _ := buildInfo()
+	current := strings.TrimPrefix(currentV, "v")
+	latest := strings.TrimPrefix(tag, "v")
+
+	if current != "dev" && current == latest {
+		_, _ = fmt.Fprintf(w, "Already up to date (%s)\n", currentV)
+		return
+	}
+
+	_, _ = fmt.Fprintln(w, "Downloading latest release...")
+
 	if err := applyUpdate(ctx, tag); err != nil {
 		_, _ = fmt.Fprintf(w, "Error: %v\n", err)
 		return
 	}
 
 	_, _ = fmt.Fprintf(w, "Successfully updated to %s!\n", tag)
+}
+
+// canWrite checks if the current user can write to the given file.
+func canWrite(path string) bool {
+	// Try opening the file for writing (without actually modifying it).
+	f, err := os.OpenFile(path, os.O_WRONLY, 0)
+	if err != nil {
+		return false
+	}
+	_ = f.Close()
+	return true
 }

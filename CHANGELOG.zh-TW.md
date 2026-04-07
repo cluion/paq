@@ -5,6 +5,17 @@
 格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)，
 本專案遵循 [語意化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [1.2.0] - 2026-04-07
+
+### 修正
+
+- `paq upgrade` 現在會先比對版本再下載，已是最新時跳過更新
+- 自我更新前檢查寫入權限，避免無聲失敗
+
+### 新增
+
+- CI 品質檢查與漏洞掃描（golangci-lint、govulncheck）
+
 ## [1.1.0] - 2026-04-07
 
 ### 新增

@@ -252,6 +252,9 @@ func TestUpgradeLocalSelfUpdate(t *testing.T) {
 	lookupEnv = func(key string) (string, bool) {
 		return "", false
 	}
+	checkWritable = func(path string) bool {
+		return true
+	}
 	fetchLatestTag = func(ctx context.Context) (string, error) {
 		return "v1.1.0", nil
 	}
@@ -261,6 +264,7 @@ func TestUpgradeLocalSelfUpdate(t *testing.T) {
 	defer func() {
 		getExecutable = os.Executable
 		lookupEnv = os.LookupEnv
+		checkWritable = canWrite
 		fetchLatestTag = defaultFetchLatestTag
 		applyUpdate = defaultApplyUpdate
 	}()
@@ -290,6 +294,9 @@ func TestUpgradeUnknownSelfUpdate(t *testing.T) {
 	lookupEnv = func(key string) (string, bool) {
 		return "", false
 	}
+	checkWritable = func(path string) bool {
+		return true
+	}
 	fetchLatestTag = func(ctx context.Context) (string, error) {
 		return "v1.1.0", nil
 	}
@@ -299,6 +306,7 @@ func TestUpgradeUnknownSelfUpdate(t *testing.T) {
 	defer func() {
 		getExecutable = os.Executable
 		lookupEnv = os.LookupEnv
+		checkWritable = canWrite
 		fetchLatestTag = defaultFetchLatestTag
 		applyUpdate = defaultApplyUpdate
 	}()
@@ -328,12 +336,16 @@ func TestUpgradeSelfUpdateFetchError(t *testing.T) {
 	lookupEnv = func(key string) (string, bool) {
 		return "", false
 	}
+	checkWritable = func(path string) bool {
+		return true
+	}
 	fetchLatestTag = func(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("network error")
 	}
 	defer func() {
 		getExecutable = os.Executable
 		lookupEnv = os.LookupEnv
+		checkWritable = canWrite
 		fetchLatestTag = defaultFetchLatestTag
 	}()
 
@@ -359,6 +371,9 @@ func TestUpgradeSelfUpdateApplyError(t *testing.T) {
 	lookupEnv = func(key string) (string, bool) {
 		return "", false
 	}
+	checkWritable = func(path string) bool {
+		return true
+	}
 	fetchLatestTag = func(ctx context.Context) (string, error) {
 		return "v1.1.0", nil
 	}
@@ -368,6 +383,7 @@ func TestUpgradeSelfUpdateApplyError(t *testing.T) {
 	defer func() {
 		getExecutable = os.Executable
 		lookupEnv = os.LookupEnv
+		checkWritable = canWrite
 		fetchLatestTag = defaultFetchLatestTag
 		applyUpdate = defaultApplyUpdate
 	}()
@@ -384,6 +400,53 @@ func TestUpgradeSelfUpdateApplyError(t *testing.T) {
 	output := buf.String()
 	if !strings.Contains(output, "Error") {
 		t.Errorf("expected error message, got: %s", output)
+	}
+}
+
+func TestUpgradeSelfUpdateAlreadyUpToDate(t *testing.T) {
+	origVersion := version
+	version = "1.1.0"
+	defer func() { version = origVersion }()
+
+	getExecutable = func() (string, error) {
+		return "/usr/local/bin/paq", nil
+	}
+	lookupEnv = func(key string) (string, bool) {
+		return "", false
+	}
+	checkWritable = func(path string) bool {
+		return true
+	}
+	fetchLatestTag = func(ctx context.Context) (string, error) {
+		return "v1.1.0", nil
+	}
+	applyUpdate = func(ctx context.Context, tag string) error {
+		t.Fatal("applyUpdate should not be called when already up to date")
+		return nil
+	}
+	defer func() {
+		getExecutable = os.Executable
+		lookupEnv = os.LookupEnv
+		checkWritable = canWrite
+		fetchLatestTag = defaultFetchLatestTag
+		applyUpdate = defaultApplyUpdate
+	}()
+
+	var buf bytes.Buffer
+	cmd := newUpgradeCmd()
+	cmd.SetOut(&buf)
+	cmd.SetArgs([]string{})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "Already up to date") {
+		t.Errorf("expected up to date message, got: %s", output)
+	}
+	if strings.Contains(output, "Downloading") {
+		t.Errorf("should not download when already up to date, got: %s", output)
 	}
 }
 
