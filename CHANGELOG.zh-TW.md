@@ -5,6 +5,17 @@
 格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)，
 本專案遵循 [語意化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [1.3.0] - 2026-04-08
+
+### 新增
+
+- APT/dpkg provider（`paq apt`），支援 Debian/Ubuntu 系統
+- apt provider 測試
+
+### 變更
+
+- README Go 版本需求從 1.22+ 更新為 1.26+，與 go.mod 一致
+
 ## [1.2.1] - 2026-04-07
 
 ### 修正

@@ -197,12 +197,13 @@ paq dev (commit: abc1234, built: 2026-04-06)
 | npm | `paq npm` | macOS、Linux、Windows |
 | Snap | `paq snap` | Linux |
 | Flatpak | `paq flatpak` | Linux |
+| APT/dpkg | `paq apt` | Linux（Debian/Ubuntu）|
 
 ## 開發
 
 ### 環境需求
 
-- Go 1.22+
+- Go 1.26+
 - golangci-lint
 
 ### 編譯
