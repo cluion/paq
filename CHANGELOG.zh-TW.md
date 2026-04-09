@@ -5,6 +5,22 @@
 格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)，
 本專案遵循 [語意化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [1.4.0] - 2026-04-09
+
+### 新增
+
+- 表格圓角邊框與欄位間距樣式
+- 套件輸出新增 `Type` 欄位（如 Homebrew 的 `formula` / `cask`）
+- `paq list` 狀態色彩標示（available 綠色、not found 灰色）
+- 動態欄位顯示 — Type 和 Description 僅在有資料時顯示
+
+### 變更
+
+- `paq list` 改用圓角全框樣式
+- `paq brew/npm/...` 改用輕量標題分隔線樣式
+- 過長的套件名稱與版本以 `…` 截斷
+- 移除套件列表的 Description 欄位
+
 ## [1.3.0] - 2026-04-08
 
 ### 新增

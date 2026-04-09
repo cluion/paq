@@ -10,8 +10,8 @@ import (
 
 func TestTableFormatter_FormatPackages(t *testing.T) {
 	pkgs := []provider.Package{
-		{Name: "git", Version: "2.40.0", Desc: "Distributed version control system"},
-		{Name: "node", Version: "20.1.0", Desc: "Platform built on V8"},
+		{Name: "git", Version: "2.40.0", Type: "formula"},
+		{Name: "firefox", Version: "146.0.1", Type: "cask"},
 	}
 
 	var buf bytes.Buffer
@@ -29,8 +29,11 @@ func TestTableFormatter_FormatPackages(t *testing.T) {
 	if !strings.Contains(out, "2.40.0") {
 		t.Error("output should contain version '2.40.0'")
 	}
-	if !strings.Contains(out, "Distributed version control system") {
-		t.Error("output should contain description")
+	if !strings.Contains(out, "formula") {
+		t.Error("output should contain type 'formula'")
+	}
+	if !strings.Contains(out, "cask") {
+		t.Error("output should contain type 'cask'")
 	}
 	if !strings.Contains(out, "Total: 2") {
 		t.Error("output should contain 'Total: 2'")
@@ -50,20 +53,24 @@ func TestTableFormatter_FormatPackagesEmpty(t *testing.T) {
 	}
 }
 
-func TestTableFormatter_FormatPackagesNoDesc(t *testing.T) {
+func TestTableFormatter_FormatPackagesNoType(t *testing.T) {
 	pkgs := []provider.Package{
 		{Name: "curl", Version: "8.1.0"},
 	}
 
 	var buf bytes.Buffer
 	f := &TableFormatter{}
-	err := f.FormatPackages(&buf, "brew", pkgs)
+	err := f.FormatPackages(&buf, "npm", pkgs)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if !strings.Contains(buf.String(), "curl") {
+	out := buf.String()
+	if !strings.Contains(out, "curl") {
 		t.Error("output should contain package name 'curl'")
+	}
+	if strings.Contains(out, "Type") {
+		t.Error("output should not contain Type column when no packages have type")
 	}
 }
 

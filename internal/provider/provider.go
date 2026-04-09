@@ -5,6 +5,7 @@ type Package struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
 	Desc    string `json:"desc,omitempty"`
+	Type    string `json:"type,omitempty"`
 }
 
 // Provider is the interface that all package source providers must implement.

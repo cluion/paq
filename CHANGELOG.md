@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-09
+
+### Added
+
+- Table styling with rounded borders and cell padding
+- `Type` field in package output (e.g. `formula` / `cask` for Homebrew)
+- Color-coded status in `paq list` (green for available, gray for not found)
+- Dynamic column visibility — Type and Description columns only appear when relevant
+
+### Changed
+
+- Improved `paq list` table with full rounded border style
+- Improved `paq brew/npm/...` table with lightweight header separator
+- Long package names and versions are now truncated with `…`
+- Removed Description column from package listing tables
+
 ## [1.3.0] - 2026-04-08
 
 ### Added

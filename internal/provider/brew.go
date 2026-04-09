@@ -53,6 +53,7 @@ func (b *BrewProvider) List() ([]Package, error) {
 			Name:    f.Name,
 			Version: version,
 			Desc:    f.Desc,
+			Type:    "formula",
 		})
 	}
 
@@ -61,6 +62,7 @@ func (b *BrewProvider) List() ([]Package, error) {
 			Name:    c.Name,
 			Version: c.Installed,
 			Desc:    c.Desc,
+			Type:    "cask",
 		})
 	}
 
